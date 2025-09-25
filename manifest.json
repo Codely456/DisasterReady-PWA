@@ -1,0 +1,68 @@
+{
+  "short_name": "DisasterReady",
+  "name": "DisasterReady: School Preparedness & Emergency Response",
+  "description": "Comprehensive disaster preparedness and emergency response education system for schools and colleges",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1e293b",
+  "theme_color": "#3B82F6",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "safety", "emergency"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "🚨 EMERGENCY ACCESS",
+      "short_name": "Emergency",
+      "description": "CRITICAL: Instant access to emergency protocols - works offline",
+      "url": "/emergency.html",
+      "icons": [
+        {
+          "src": "/icons/warning-icon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Learning Mode",
+      "short_name": "Learn",
+      "description": "Access educational modules and virtual drills",
+      "url": "/?mode=learning",
+      "icons": [
+        {
+          "src": "/icons/school-building-icon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ]
+}

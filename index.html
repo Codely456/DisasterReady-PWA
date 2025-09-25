@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DisasterReady</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+    <div class="hero-container">
+        <div class="glass-card">
+            <h1 class="title bloom-text">DisasterReady</h1>
+            <a href="main.html" class="hero-button">Start Learning &rarr;</a>
+        </div>
+    </div>
+
+    <script>
+        const title = document.querySelector('.title');
+        const text = title.textContent;
+        title.innerHTML = '';
+        for (let i = 0; i < text.length; i++) {
+            const span = document.createElement('span');
+            span.textContent = text[i];
+            if (text[i] === ' ') {
+                span.style.display = 'inline';
+            } else {
+                span.style.animationDelay = `${i * 0.05}s`;
+            }
+            title.appendChild(span);
+        }
+    </script>
+
+</body>
+</html>

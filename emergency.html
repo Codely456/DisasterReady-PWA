@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 EMERGENCY - DisasterReady</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+        
+        .emergency-header {
+            position: relative; /* Added for positioning back button */
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .emergency-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .emergency-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .emergency-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .contact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            font-size: 1.1rem;
+        }
+        
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+        
+        .contact-number {
+            font-weight: bold;
+            font-size: 1.3rem;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        
+        .protocol-step {
+            background: rgba(255,255,255,0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #fbbf24;
+        }
+        
+        .protocol-number {
+            font-weight: bold;
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+        
+        .evacuation-route {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .safety-tip {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .critical-info {
+            background: rgba(245, 158, 11, 0.3);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .btn-emergency {
+            background: #fbbf24;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .btn-emergency:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .emergency-title {
+                font-size: 2rem;
+            }
+            .emergency-grid {
+                grid-template-columns: 1fr;
+            }
+            .back-button {
+                top: 15px;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-indicator">📡 OFFLINE MODE</div>
+    
+    <div class="emergency-header">
+        <a href="/main.html" class="back-button">← Back to App</a>
+        <div class="emergency-title">🚨 EMERGENCY ACCESS</div>
+        <div class="emergency-subtitle">Critical Information Available Offline</div>
+    </div>
+    
+    <div class="emergency-grid">
+        <!-- Emergency Contacts -->
+        <div class="emergency-card">
+            <div class="card-title">
+                📞 EMERGENCY CONTACTS
+            </div>
+            <div class="contact-item">
+                <span>🚑 Emergency Services</span>
+                <span class="contact-number">112</span>
+            </div>
+            <div class="contact-item">
+                <span>🚒 Fire Department</span>
+                <span class="contact-number">101</span>
+            </div>
+            <div class="contact-item">
+                <span>👮 Police</span>
+                <span class="contact-number">100</span>
+            </div>
+            <div class="contact-item">
+                <span>🏥 Medical Emergency</span>
+                <span class="contact-number">108</span>
+            </div>
+            <div class="contact-item">
+                <span>⛑️ Disaster Management</span>
+                <span class="contact-number">1078</span>
+            </div>
+            <div class="contact-item">
+                <span>🔥 Gas Emergency</span>
+                <span class="contact-number">1906</span>
+            </div>
+        </div>
+        
+        <!-- Immediate Actions -->
+        <div class="emergency-card">
+            <div class="card-title">
+                ⚡ IMMEDIATE ACTIONS
+            </div>
+            <div class="protocol-step">
+                <div class="protocol-number">1.</div>
+                <strong>STAY CALM</strong> - Take deep breaths and assess the situation
+            </div>
+            <div class="protocol-step">
+                <div class="protocol-number">2.</div>
+                <strong>ENSURE SAFETY</strong> - Move away from immediate danger
+            </div>
+            <div class="protocol-step">
+                <div class="protocol-number">3.</div>
+                <strong>CALL FOR HELP</strong> - Use emergency numbers above
+            </div>
+            <div class="protocol-step">
+                <div class="protocol-number">4.</div>
+                <strong>FOLLOW EVACUATION</strong> - Use designated routes
+            </div>
+            <div class="protocol-step">
+                <div class="protocol-number">5.</div>
+                <strong>ACCOUNT FOR EVERYONE</strong> - Check all students/staff
+            </div>
+        </div>
+        
+        <!-- Evacuation Routes -->
+        <div class="emergency-card">
+            <div class="card-title">
+                🚪 EVACUATION GUIDELINES
+            </div>
+            <div class="evacuation-route">
+                <strong>🏃‍♂️ PRIMARY ROUTE:</strong><br>
+                Main corridors → Fire exits → Assembly point (Playground)
+            </div>
+            <div class="evacuation-route">
+                <strong>🚶‍♀️ SECONDARY ROUTE:</strong><br>
+                Side corridors → Emergency exits → Backup assembly (Parking area)
+            </div>
+            <div class="safety-tip">
+                <strong>⚠️ REMEMBER:</strong><br>
+                • Walk, don't run<br>
+                • Stay low if smoke present<br>
+                • Help others if safe to do so<br>
+                • Never use elevators
+            </div>
+        </div>
+        
+        <!-- Critical Safety Info -->
+        <div class="emergency-card">
+            <div class="card-title">
+                🛡️ SAFETY PROTOCOLS
+            </div>
+            <div class="critical-info">
+                <strong>🌪️ EARTHQUAKE:</strong><br>
+                DROP → COVER → HOLD ON<br>
+                Stay under desk/table
+            </div>
+            <div class="critical-info">
+                <strong>🔥 FIRE:</strong><br>
+                GET LOW → GET OUT → STAY OUT<br>
+                Feel doors before opening
+            </div>
+            <div class="critical-info">
+                <strong>🌊 FLOOD:</strong><br>
+                MOVE TO HIGHER GROUND<br>
+                Avoid walking in moving water
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Self-contained script for emergency page stability and status
+        console.log('Emergency page loaded - fully offline capable');
+
+        const updateOnlineStatus = () => {
+            const indicator = document.querySelector('.offline-indicator');
+            if (!indicator) return;
+
+            if (navigator.onLine) {
+                indicator.textContent = '📡 ONLINE';
+                indicator.style.backgroundColor = '#22c55e'; // Green
+            } else {
+                indicator.textContent = '📡 OFFLINE MODE';
+                indicator.style.backgroundColor = '#ef4444'; // Red
+            }
+        };
+
+        // Listen for network status changes
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Set initial status on page load
+        document.addEventListener('DOMContentLoaded', updateOnlineStatus);
+    </script>
+</body>
+</html>
