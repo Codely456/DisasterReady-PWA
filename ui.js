@@ -166,6 +166,7 @@ export function renderStudentUI(userId, userData, eventHandlers) {
                     <div class="flex items-center space-x-4">
                         <a href="emergency.html" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-4xl animate-pulse">🚨</a>
                         <button id="install-pwa-btn" class="hidden bg-purple-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">Install App</button>
+                        <div id="google_translate_element"></div>
                         ${renderThemeToggle()}
                         <button id="logout-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 transition-colors">Log Out</button>
                     </div>
@@ -243,6 +244,7 @@ export function renderStudentUI(userId, userData, eventHandlers) {
     });
     document.getElementById('logout-btn').onclick = eventHandlers.onLogout;
     document.getElementById('theme-toggle-btn')?.addEventListener('click', handleThemeToggle);
+    if (typeof googleTranslateElementInit === 'function') { googleTranslateElementInit(); }
 }
 
 let scoreChartInstance = null;
@@ -270,6 +272,7 @@ export function renderAdminUI(students, sort, filter, stats, eventHandlers) {
                     <div class="flex items-center space-x-4">
                         <a href="emergency.html" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-4xl animate-pulse">🚨</a>
                         <button id="install-pwa-btn" class="hidden bg-purple-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">Install App</button>
+                        <div id="google_translate_element"></div>
                         ${renderThemeToggle()}
                         <button id="logout-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 transition-colors">Log Out</button>
                     </div>
@@ -344,6 +347,7 @@ export function renderAdminUI(students, sort, filter, stats, eventHandlers) {
         row.onclick = () => eventHandlers.onSelectStudent(row.dataset.studentId);
     });
     document.getElementById('theme-toggle-btn')?.addEventListener('click', handleThemeToggle);
+    if (typeof googleTranslateElementInit === 'function') { googleTranslateElementInit(); }
 }
 
 export function renderChapterList(userData, eventHandlers) {
