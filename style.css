@@ -150,3 +150,21 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Style the Google Translate Dropdown */
+#google_translate_element {
+    margin-right: 1rem;
+}
+.goog-te-combo {
+    background-color: #e0e7ff;
+    color: #374151;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 600;
+}
+.dark .goog-te-combo {
+    background-color: #374151;
+    color: #e5e7eb;
+    border: 1px solid #4b5563;
+}
