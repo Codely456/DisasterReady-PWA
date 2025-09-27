@@ -300,58 +300,57 @@ async function checkAndAwardAchievements() {
     if (allQuizTypes.every(q => completed.includes(q)) && !achievements.includes('Safety Savant')) localDataService.awardUserAchievement(state.appId, 'Safety Savant');
 }
 
+// ▼▼▼ REPLACE THE ENTIRE 'DOMContentLoaded' LISTENER AT THE END OF THE FILE WITH THIS ▼▼▼
 document.addEventListener('DOMContentLoaded', () => {
+    const particlesContainer = document.getElementById('particles-js');
+    
+    // If the particles container doesn't exist on the page, don't do anything.
+    if (!particlesContainer) {
+        return;
+    }
+    
     const initParticles = (isDarkMode) => {
+        // This configuration sets up the particles for the Light Theme (white background, gray particles)
         const lightTheme = {
-            "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#3b82f6" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": false },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#3b82f6", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" }
-            },
-            "interactivity": {
-                "events": { "onhover": { "enable": true, "mode": "repulse" } }
-            }
+            "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#808080" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5, "random": false }, "size": { "value": 5, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#808080", "opacity": 0.4, "width": 2 }, "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "repulse" } } }
         };
 
+        // This configuration sets up the particles for the Dark Theme (blue background, yellow particles)
         const darkTheme = {
-            "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#ffffff" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": false },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" }
-            },
-            "interactivity": {
-                "events": { "onhover": { "enable": true, "mode": "repulse" } }
-            }
+            "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#FFFF00" }, "shape": { "type": "circle" }, "opacity": { "value": 0.6, "random": false }, "size": { "value": 5, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#FFFF00", "opacity": 0.4, "width": 2 }, "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "repulse" } } }
         };
-
-        const config = isDarkMode ? darkTheme : lightTheme;
+        
+        // Destroy any old particle animation before creating a new one
         if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
             window.pJSDom[0].pJS.fn.vendors.destroypJS();
         }
+        
+        // Choose the correct theme and create the new particle animation
+        const config = isDarkMode ? darkTheme : lightTheme;
         particlesJS('particles-js', config);
     };
 
+    // 1. Check the theme when the page first loads
     let isDark = document.documentElement.classList.contains('dark');
     initParticles(isDark);
     
+    // 2. Create an "observer" that watches for changes to the theme
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
+            // If the 'class' attribute on the <html> tag changes...
             if (mutation.attributeName === 'class') {
                 const newIsDark = document.documentElement.classList.contains('dark');
                 if (newIsDark !== isDark) {
                     isDark = newIsDark;
+                    // ...redraw the particles with the new theme.
                     initParticles(isDark);
                 }
             }
         });
     });
+    
+    // Tell the observer to start watching the <html> element
     observer.observe(document.documentElement, { attributes: true });
 });
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+
