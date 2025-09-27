@@ -13,6 +13,12 @@ const CRITICAL_ASSETS = [
 
 // Additional assets to cache when possible
 const STATIC_ASSETS = [
+  '/', // This caches the root URL, which is crucial
+  '/index.html',
+  '/main.html',
+  '/emergency.html',
+  '/offline.html',
+  '/manifest.json',
   '/app.js',
   '/firebase.js',
   '/service.js',
@@ -54,6 +60,13 @@ const STATIC_ASSETS = [
   '/assets/images/wild-dd.jpg',
   '/assets/images/wild-prep.jpeg',
   '/assets/images/wildfire.jpg'
+  '/assets/images/login-background-1.jpg',
+  '/assets/images/hero-background.jpg',
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg',
+  '/chatbot.js',
+  '/ui.js',
+  
 ];
 
 const FIREBASE_ASSETS = [
