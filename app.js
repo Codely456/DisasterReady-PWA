@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndP
 import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
 import { chapters } from './data.js';
+import { initializeChatbot, displayBotMessage } from './chatbot.js';
 // --- App State ---
 let state = {
     appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
@@ -157,7 +158,7 @@ function handleClearData() {
 function renderApp() {
     if (!state.isAuthReady) return;
     renderAppShell();
-    
+        initializeChatbot();
     if (state.userRole === 'admin') {
         renderAdminDashboard();
     } else {
@@ -178,9 +179,14 @@ async function renderStudentDashboard() {
             const data = docSnap.data();
             renderStudentUI(state.userId, data, {
                 onLogout: handleLogout,
-                onStartLearning: () => renderChapterList(data, chapterEventHandlers),
+                onStartLearning: () => {
+                    // This is the fix for the button
+                    renderChapterList(data, chapterEventHandlers);
+                    displayBotMessage('chapterList');
+                },
                 onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
             });
+            displayBotMessage('studentDashboard');
         }
         showLoading(false);
     });
@@ -191,9 +197,13 @@ const chapterEventHandlers = {
     onSelectChapter: (index) => renderChapterDetail(index, null, chapterDetailEventHandlers),
 };
 
-const chapterDetailEventHandlers = {
-    onBackToChapters: renderApp,
-    onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score)),
+const chapterEventHandlers = {
+    onBackToDashboard: renderStudentDashboard,
+    onSelectChapter: (index) => {
+        renderChapterDetail(index, null, chapterDetailEventHandlers);
+        // ▼▼▼ ADD THIS LINE ▼▼▼
+        displayBotMessage('chapterDetail');
+    },
 };
 
 function updateAdminView() {
@@ -242,9 +252,10 @@ const adminEventHandlers = {
 // In app.js
 async function renderAdminDashboard() {
     showLoading(true);
-    // Fetch all student data for the admin view
-    state.admin.students = await localDataService.getAllStudents(); // Add 'await' here!
+    state.admin.students = await localDataService.getAllStudents();
     updateAdminView();
+    // ▼▼▼ ADD THIS LINE ▼▼▼
+    displayBotMessage('adminDashboard');
     showLoading(false);
 }
 
