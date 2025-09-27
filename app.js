@@ -1,13 +1,11 @@
-import { auth, db } from './firebase.js';
+import { auth } from './firebase.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
-import { chapters, localDB as defaultDB } from './data.js';
-
+import { chapters } from './data.js';
 // --- App State ---
 let state = {
-    appId: 'default-app-id',
+    appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
     adminSchoolId: 'admin-school-123',
     userId: null,
     userRole: 'student',
@@ -21,7 +19,8 @@ let state = {
 
 // --- App Initialization ---
 onAuthStateChanged(auth, (user) => {
-    if (user) {
+    localDataService.initialize();
+     if (user) {
         state.isAuthReady = true;
         state.userId = user.uid;
         localDataService.setUserId(user.uid);
@@ -31,27 +30,12 @@ onAuthStateChanged(auth, (user) => {
         state.isAuthReady = false;
         state.userId = null;
         localDataService.setUserId(null);
+        // This call is now updated to pass the new handleSignUp function
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
     }
 });
 
-// --- PWA Installation Logic (No changes needed here) ---
-// --- PWA Installation Logic ---
-let deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    const installBtn = document.getElementById('install-pwa-btn');
-    if (installBtn) {
-        installBtn.classList.remove('hidden');
-    }
-});
-
-// ... (Your existing PWA installation code is fine) ...
-
-// --- Event Handlers & Logic ---
-
+//3. ADD THIS ENTIRE NEW FUNCTION
 async function handleSignUp(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -62,6 +46,7 @@ async function handleSignUp(role) {
     const confirmPassword = document.getElementById(confirmPasswordInputId).value.trim();
     let isValid = true;
 
+    // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
     clearInputError(confirmPasswordInputId);
@@ -82,21 +67,14 @@ async function handleSignUp(role) {
     if (!isValid) return;
 
     const email = `${userId}@email.com`;
-    
+    console.log("Attempting to sign up with email:", email);
+
     try {
         showLoading(true);
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const newUser = userCredential.user;
-
-        // Create a user profile document in Firestore to store the friendly username
-        const userDocRef = doc(db, "users", newUser.uid);
-        const userProfileData = {
-            ...defaultDB,
-            displayId: userId // Save the friendly username
-        };
-        await setDoc(userDocRef, userProfileData);
-
+        await createUserWithEmailAndPassword(auth, email, password);
         showToast('Account created successfully! Please sign in.', 'bg-green-500');
+        
+        // After successful signup, refresh the login page to the sign-in view
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
 
     } catch (error) {
@@ -111,6 +89,7 @@ async function handleSignUp(role) {
     }
 }
 
+// --- Event Handlers & Logic ---
 async function handleLogin(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -119,6 +98,7 @@ async function handleLogin(role) {
     const password = document.getElementById(passwordInputId).value.trim();
     let isValid = true;
 
+    // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
 
@@ -133,7 +113,10 @@ async function handleLogin(role) {
 
     if (!isValid) return;
 
+    // Transform userId to email format
     const email = `${userId}@email.com`;
+
+    console.log("Attempting to log in with email:", email);
 
     try {
         showLoading(true);
@@ -143,7 +126,7 @@ async function handleLogin(role) {
         state.isAuthReady = true;
         state.userId = user.uid;
         state.userRole = role;
-        localStorage.setItem('userRole', role);
+        localStorage.setItem('userRole', role); // Store role
         localDataService.setUserId(user.uid);
 
         renderApp();
@@ -158,16 +141,16 @@ async function handleLogin(role) {
 
 function handleLogout() {
     signOut(auth).then(() => {
-        localStorage.removeItem('userRole');
-        // onAuthStateChanged will handle re-rendering the login page
+        localStorage.removeItem('userRole'); // Clear role on logout
+        // The onAuthStateChanged listener will handle the rest.
     });
 }
 
 function handleClearData() {
-    if (confirm('This will clear data in Firestore and cannot be undone. Are you sure?')) {
-        localDataService.clearData();
+    if (confirm('Are you sure you want to reset all saved progress for the current user? This cannot be undone.')) {
+        localDataService.clearData(); // This will now clear data for the current user
         showToast('Your saved data has been reset.', 'bg-blue-500');
-        renderApp();
+        renderApp(); // Re-render the dashboard
     }
 }
 
@@ -183,16 +166,17 @@ function renderApp() {
 }
 
 function handleInputFocus(inputElement, isFocused) {
-    // For future animations
+    // Placeholder for future animations
 }
 
 async function renderStudentDashboard() {
     showLoading(true);
+    await localDataService.ensureUserProfile(state.appId, state.adminSchoolId);
+
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            const displayName = data.displayId || state.userId; // Use the friendly name
-            renderStudentUI(displayName, data, {
+            renderStudentUI(state.userId, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => renderChapterList(data, chapterEventHandlers),
                 onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
@@ -208,16 +192,9 @@ const chapterEventHandlers = {
 };
 
 const chapterDetailEventHandlers = {
-    onBackToChapters: renderStudentDashboard, // Go back to the student dashboard
+    onBackToChapters: renderApp,
     onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score)),
 };
-
-async function renderAdminDashboard() {
-    showLoading(true);
-    state.admin.students = await localDataService.getAllStudents();
-    updateAdminView();
-    showLoading(false);
-}
 
 function updateAdminView() {
     const students = state.admin.students;
@@ -235,6 +212,7 @@ function updateAdminView() {
         : 'None';
 
     const stats = { totalScore, averageScore, topAchievement };
+
     renderAdminUI(students, state.admin.sort, state.admin.filter, stats, adminEventHandlers);
 }
 
@@ -253,13 +231,21 @@ const adminEventHandlers = {
         }
         updateAdminView();
     },
-    onSelectStudent: async (studentId) => {
-        const studentDoc = await localDataService.getUserDoc(studentId); // Use a generic getter
-        if (studentDoc.exists()) {
-            renderStudentDetailModal(studentDoc.id, studentDoc.data());
+    onSelectStudent: (studentId) => {
+        const studentData = state.admin.students.find(s => s.id === studentId);
+        if (studentData) {
+            renderStudentDetailModal(studentId, studentData);
         }
     }
 };
+
+async function renderAdminDashboard() {
+    showLoading(true);
+    // Fetch all student data for the admin view
+    state.admin.students = localDataService.getAllStudents();
+    updateAdminView();
+    showLoading(false);
+}
 
 function handleQuizCompletion(quizType, score) {
     if (score > 0) {
@@ -276,18 +262,17 @@ function handleQuizCompletion(quizType, score) {
 
 async function checkAndAwardAchievements() {
     const docSnap = await localDataService.getUserDoc(state.appId);
-    if (!docSnap.exists()) return;
-    
     const data = docSnap.data();
     const score = data.score || 0;
     const achievements = data.achievements || [];
-    const completed = data.completedQuizzes || [];
-    
-     if (score >= 50 && !achievements.includes('Fire Safety Pro')) localDataService.awardUserAchievement(state.appId, 'Fire Safety Pro');
+    const level = Math.floor(score / 100) + 1;
+
+    if (score >= 50 && !achievements.includes('Fire Safety Pro')) localDataService.awardUserAchievement(state.appId, 'Fire Safety Pro');
     if (score >= 100 && !achievements.includes('Earthquake Expert')) localDataService.awardUserAchievement(state.appId, 'Earthquake Expert');
     if (score >= 150 && !achievements.includes('All-Rounder')) localDataService.awardUserAchievement(state.appId, 'All-Rounder');
     if (score >= 300 && !achievements.includes('Safety Superstar')) localDataService.awardUserAchievement(state.appId, 'Safety Superstar');
 
+    const completed = data.completedQuizzes || [];
     if (completed.length > 0 && !achievements.includes('Quiz Novice')) localDataService.awardUserAchievement(state.appId, 'Quiz Novice');
     if (completed.includes('fire') && !achievements.includes('Fire Quiz Master')) localDataService.awardUserAchievement(state.appId, 'Fire Quiz Master');
     if (completed.includes('earthquake') && !achievements.includes('Earthquake Quiz Master')) localDataService.awardUserAchievement(state.appId, 'Earthquake Quiz Master');
@@ -305,7 +290,7 @@ async function checkAndAwardAchievements() {
     const allQuizTypes = chapters.filter(c => c.gameType !== 'none').map(c => c.gameType);
     if (allQuizTypes.every(q => completed.includes(q)) && !achievements.includes('Safety Savant')) localDataService.awardUserAchievement(state.appId, 'Safety Savant');
 }
-// --- Particle Animation and Theme Toggle Logic ---
+
 document.addEventListener('DOMContentLoaded', () => {
     const initParticles = (isDarkMode) => {
         const lightTheme = {
