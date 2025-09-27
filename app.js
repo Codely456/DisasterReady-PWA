@@ -203,15 +203,6 @@ const chapterEventHandlers = {
     },
 };
 
-const chapterEventHandlers = {
-    onBackToDashboard: renderStudentDashboard,
-    onSelectChapter: (index) => {
-        renderChapterDetail(index, null, chapterDetailEventHandlers);
-        // ▼▼▼ ADD THIS LINE ▼▼▼
-        displayBotMessage('chapterDetail');
-    },
-};
-
 function updateAdminView() {
     const students = state.admin.students;
     const totalScore = students.reduce((sum, s) => sum + (s.score || 0), 0);
