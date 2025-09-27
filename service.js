@@ -1,108 +1,113 @@
-import { db } from './firebase.js';
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { localDB as defaultDB } from './data.js';
+
+// This will be our live, in-memory database, loaded from localStorage.
+let localDB = {};
+
+// Helper to save the current state of localDB to localStorage for the current user
+function save(userId) {
+    if (!userId) return;
+    try {
+        const allUsersData = JSON.parse(localStorage.getItem('disasterAppDB') || '{}');
+        allUsersData[userId] = localDB;
+        localStorage.setItem('disasterAppDB', JSON.stringify(allUsersData));
+    } catch (e) {
+        console.error("Failed to save to localStorage", e);
+    }
+}
 
 const localDataService = {
     _userId: null,
-    _unsubscribe: null, // To stop listening for real-time updates on logout
 
-    setUserId: (userId) => {
-        localDataService._userId = userId;
-        // If a real-time listener is active, stop it.
-        if (localDataService._unsubscribe) {
-            localDataService._unsubscribe();
-        }
+    initialize: () => {
+        // This function doesn't need to do anything on initial load anymore.
+        // Data is loaded when a user logs in.
     },
 
-    // REAL-TIME LISTENER for the logged-in student's data
-    listenToUserData: (appId, callback) => {
-        if (!localDataService._userId) return;
-        
-        const userDocRef = doc(db, "users", localDataService._userId);
-
-        // onSnapshot creates a live connection to the database
-        localDataService._unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-            if (docSnap.exists()) {
-                callback(docSnap); // Pass the live data to the UI
-            } else {
-                // If the user has logged in for the first time, their document won't exist.
-                // We create it here using the default template from data.js.
-                setDoc(userDocRef, defaultDB).then(() => {
-                    console.log("New user profile created in Firestore.");
-                });
-            }
-        });
-    },
-    
-    // FETCH ALL STUDENTS for the admin dashboard
-    getAllStudents: async () => {
-        const usersCollectionRef = collection(db, "users");
+    getAllStudents: () => {
         try {
-            const querySnapshot = await getDocs(usersCollectionRef);
-            const students = [];
-            querySnapshot.forEach((doc) => {
-                // You can add logic here to exclude admins if needed
-                students.push({ id: doc.id, ...doc.data() });
-            });
-            return students;
+            const allUsersData = JSON.parse(localStorage.getItem('disasterAppDB') || '{}');
+            // We need to format it as an array of objects with IDs
+            return Object.entries(allUsersData).map(([id, data]) => ({ id, ...data }));
         } catch (e) {
-            console.error("Failed to get all students from Firestore", e);
+            console.error("Failed to get all students from localStorage", e);
             return [];
         }
     },
 
-    // UPDATE SCORE in Firestore
-    updateUserScore: async (appId, points) => {
-        if (!localDataService._userId) return;
-        const userDocRef = doc(db, "users", localDataService._userId);
-        const docSnap = await getDoc(userDocRef);
-
-        if (docSnap.exists()) {
-            const currentScore = docSnap.data().score || 0;
-            await updateDoc(userDocRef, {
-                score: currentScore + points
-            });
+    loadUserData: (userId) => {
+        const allUsersData = JSON.parse(localStorage.getItem('disasterAppDB') || '{}');
+        if (allUsersData[userId]) {
+            localDB = allUsersData[userId];
+        } else {
+            // If no data for this user, start with a fresh copy from the template
+            localDB = JSON.parse(JSON.stringify(defaultDB)); 
         }
     },
 
-    // AWARD ACHIEVEMENT in Firestore
-    awardUserAchievement: async (appId, achievementId) => {
+    clearData: () => {
         if (!localDataService._userId) return;
-        const userDocRef = doc(db, "users", localDataService._userId);
-        const docSnap = await getDoc(userDocRef);
+        const allUsersData = JSON.parse(localStorage.getItem('disasterAppDB') || '{}');
+        delete allUsersData[localDataService._userId];
+        localStorage.setItem('disasterAppDB', JSON.stringify(allUsersData));
+        // Reload the default data into memory for the session
+        localDB = JSON.parse(JSON.stringify(defaultDB));
+    },
 
-        if (docSnap.exists()) {
-            const achievements = docSnap.data().achievements || [];
-            if (!achievements.includes(achievementId)) {
-                achievements.push(achievementId);
-                await updateDoc(userDocRef, { achievements });
+    setUserId: (userId) => {
+        localDataService._userId = userId;
+        if (userId) {
+            localDataService.loadUserData(userId);
+        }
+    },
+
+    async ensureUserProfile(appId, schoolId) {
+        // This check is now implicit. If a user has data, they have a profile.
+        // If not, the default data is loaded, which acts as a new profile.
+    },
+
+    listenToUserData: (appId, callback) => {
+        // localDB is now the user's data object.
+        callback({ exists: () => !!localDB, data: () => localDB });
+    },
+
+    // Admin view of all students is no longer possible with this architecture
+    listenToSchoolStudents: (appId, schoolId, callback) => {
+        callback({ forEach: (cb) => {} }); // Return empty array
+    },
+
+    async getUserDoc(appId) {
+        return { data: () => localDB };
+    },
+
+    async updateUserScore(appId, points) {
+        if (localDB) {
+            localDB.score = (localDB.score || 0) + points;
+            save(localDataService._userId);
+        }
+    },
+
+    async awardUserAchievement(appId, achievementId) {
+        if (localDB) {
+            if (!localDB.achievements) {
+                localDB.achievements = [];
+            }
+            if (!localDB.achievements.includes(achievementId)) {
+                localDB.achievements.push(achievementId);
+                save(localDataService._userId);
             }
         }
     },
 
-    // MARK QUIZ AS COMPLETED in Firestore
-    markQuizAsCompleted: async (appId, quizType) => {
-        if (!localDataService._userId) return;
-        const userDocRef = doc(db, "users", localDataService._userId);
-        const docSnap = await getDoc(userDocRef);
-
-        if (docSnap.exists()) {
-            const completedQuizzes = docSnap.data().completedQuizzes || [];
-            if (!completedQuizzes.includes(quizType)) {
-                completedQuizzes.push(quizType);
-                await updateDoc(userDocRef, { completedQuizzes });
+    async markQuizAsCompleted(appId, quizType) {
+        if (localDB) {
+            if (!localDB.completedQuizzes) {
+                localDB.completedQuizzes = [];
+            }
+            if (!localDB.completedQuizzes.includes(quizType)) {
+                localDB.completedQuizzes.push(quizType);
+                save(localDataService._userId);
             }
         }
-    },
-    
-    // These functions are kept to prevent errors but are no longer needed
-    initialize: () => {},
-    clearData: () => { console.warn("clearData is not recommended in Firestore mode."); },
-    ensureUserProfile: async () => {}, // This is now handled automatically by listenToUserData
-    getUserDoc: async (appId) => {
-        if (!localDataService._userId) return { data: () => ({...defaultDB}) };
-        const userDocRef = doc(db, "users", localDataService._userId);
-        return await getDoc(userDocRef);
     }
 };
 
