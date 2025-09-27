@@ -273,10 +273,12 @@ const adminEventHandlers = {
     }
 };
 
+// In app.js
+
 async function renderAdminDashboard() {
     showLoading(true);
     // Fetch all student data for the admin view
-    state.admin.students = localDataService.getAllStudents();
+    state.admin.students = await localDataService.getAllStudents(); // Add 'await' here!
     updateAdminView();
     showLoading(false);
 }
