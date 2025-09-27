@@ -120,9 +120,9 @@ export const chapters = [
             { type: 'text', value: 'If you are trapped in a room, do not panic. Seal the cracks around the door with cloth or tape to block smoke, and call 911 to report your exact location.' },
             { type: 'text', value: 'If you need to use a fire extinguisher, remember <strong>P.A.S.S.</strong>:' },
             { type: 'list', value: ['<strong>P</strong>ull the pin.', '<strong>A</strong>im the nozzle at the base of the fire.', '<strong>S</strong>queeze the handle.', '<strong>S</strong>weep from side to side.' ] },
-             { type: 'image', value: 'assets/images/Fire-ext.webp' },
+             { type: 'image', value: 'assets/images/fire-ext.webp' },
             { type: 'heading', value: 'Do\'s and Don\'ts' },
-             { type: 'image', value: 'assets/images/Fire-D&D.jpg' },
+             { type: 'image', value: 'assets/images/fire-D&D.jpg' },
             { type: 'list', value: [
                 '<strong>Do:</strong> Stay low to the ground to avoid smoke.',
                 '<strong>Do:</strong> Check doors for heat with the back of your hand before opening.',
