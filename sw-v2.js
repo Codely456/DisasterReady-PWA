@@ -35,6 +35,26 @@ const STATIC_ASSETS = [
   '/assets/videos/chapter5-active-shooter.mp4',
   '/assets/videos/chapter6-wildfire.mp4',
   '/assets/videos/chapter7-hurricane.mp4'
+  // ADD ALL YOUR NEW IMAGE PATHS HERE:
+  '/assets/images/Fire-D&D.jpg',
+  '/assets/images/Fire-ext.webp',
+  '/assets/images/Response-prot.jpg',
+  '/assets/images/flood-dd.webp',
+  '/assets/images/flood-dd2.jpg',
+  '/assets/images/flood2.jpg',
+  '/assets/images/flood22.webp',
+  '/assets/images/floodkit.webp',
+  '/assets/images/hurricane-dd.jpg',
+  '/assets/images/hurricane-kit.png',
+  '/assets/images/hurricane-prep.jpg',
+  '/assets/images/quake-DD.png',
+  '/assets/images/quake-dtd.webp',
+  '/assets/images/quake-prot.jpg',
+  '/assets/images/tornado-dd.webp',
+  '/assets/images/tornado-shel.png',
+  '/assets/images/wild-dd.jpg',
+  '/assets/images/wild-prep.jpeg',
+  '/assets/images/wildfire.jpg'
 ];
 
 const FIREBASE_ASSETS = [
