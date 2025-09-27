@@ -8,6 +8,7 @@ let state = {
     appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
     adminSchoolId: 'admin-school-123',
     userId: null,
+    userDisplayName: null,
     userRole: 'student',
     isAuthReady: false,
     admin: {
@@ -125,6 +126,7 @@ async function handleLogin(role) {
 
         state.isAuthReady = true;
         state.userId = user.uid;
+        state.userDisplayName = userId;
         state.userRole = role;
         localStorage.setItem('userRole', role); // Store role
         localDataService.setUserId(user.uid);
@@ -176,7 +178,7 @@ async function renderStudentDashboard() {
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            renderStudentUI(state.userId, data, {
+            renderStudentUI(state.userDisplayName, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => renderChapterList(data, chapterEventHandlers),
                 onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
