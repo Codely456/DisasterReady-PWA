@@ -2,13 +2,13 @@ import { quizBank, chapters, masterAchievements } from './data.js';
 
 const appContainer = document.getElementById('app');
 
-export function renderLoginPage(loginHandler, clearDataHandler, onInputFocus) {
+// In ui.js
+
+// 1. REPLACE THE ENTIRE renderLoginPage FUNCTION
+export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, onInputFocus) {
     appContainer.innerHTML = `
     <div class="min-h-screen bg-[url('./assets/images/login-background-1.jpg')] bg-cover bg-center p-4 flex items-center justify-center">
-
         <div class="max-w-6xl w-full grid md:grid-cols-2 gap-8">
-            
-            <!-- Emergency Access Card -->
             <div id="emergency-card" class="emergency-card-pulse bg-red-50/95 dark:bg-red-900/80 backdrop-blur-sm border-2 border-red-200 dark:border-red-700 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden rounded-2xl p-8 flex flex-col justify-between cursor-pointer">
                 <div class="text-center">
                     <div class="mx-auto mb-4 text-5xl">🚨</div>
@@ -26,79 +26,117 @@ export function renderLoginPage(loginHandler, clearDataHandler, onInputFocus) {
                 </button>
             </div>
 
-            <!-- Login Card -->
             <div class="max-w-md w-full bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl animate-card-enter">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-indigo-800 dark:text-indigo-300">Learning Access</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2">Please sign in to your account.</p>
+                    <h2 id="form-title" class="text-3xl font-bold text-indigo-800 dark:text-indigo-300">Learning Access</h2>
+                    <p id="form-subtitle" class="text-gray-500 dark:text-gray-400 mt-2">Please sign in to your account.</p>
                 </div>
-
-                <!-- Tabs -->
                 <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
                     <button id="student-tab" class="flex-1 py-2 font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600">Student</button>
                     <button id="admin-tab" class="flex-1 py-2 font-semibold text-gray-500 dark:text-gray-400">Admin</button>
                 </div>
-
-                <!-- Student Form -->
-                <form id="student-login-form" class="space-y-6">
-                    ${createFormFields('student')}
-                </form>
-
-                <!-- Admin Form (hidden by default) -->
-                <form id="admin-login-form" class="space-y-6 hidden">
-                    ${createFormFields('admin')}
-                </form>
-
-                <button id="clear-data-btn" class="mt-4 w-full text-xs text-gray-500 hover:text-red-500 hover:underline">Reset Saved Data</button>
-
                 
+                <form id="auth-form" class="space-y-6"></form>
+
+                <p id="form-toggle-text" class="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
+                    Don't have an account? <a href="#" id="toggle-link" class="font-semibold text-indigo-500 hover:underline">Sign Up</a>
+                </p>
+                <button id="clear-data-btn" class="mt-4 w-full text-xs text-gray-500 hover:text-red-500 hover:underline">Reset Saved Data</button>
             </div>
         </div>
     </div>
     `;
 
+    let isLoginView = true;
+    let currentRole = 'student';
+
     const studentTab = document.getElementById('student-tab');
     const adminTab = document.getElementById('admin-tab');
-    const studentForm = document.getElementById('student-login-form');
-    const adminForm = document.getElementById('admin-login-form');
+    const authForm = document.getElementById('auth-form');
+    const formTitle = document.getElementById('form-title');
+    const formSubtitle = document.getElementById('form-subtitle');
+    const formToggleText = document.getElementById('form-toggle-text');
+    const toggleLink = document.getElementById('toggle-link');
+
+    function updateFormView() {
+        authForm.innerHTML = isLoginView ? createFormFields(currentRole) : createSignUpFormFields(currentRole);
+        formTitle.textContent = isLoginView ? 'Learning Access' : 'Create Account';
+        formSubtitle.textContent = isLoginView ? 'Please sign in to your account.' : 'Create a new student account.';
+        
+        adminTab.disabled = !isLoginView;
+        adminTab.style.cursor = isLoginView ? 'pointer' : 'not-allowed';
+        adminTab.style.opacity = isLoginView ? '1' : '0.5';
+        
+        if (!isLoginView) {
+            currentRole = 'student';
+            studentTab.click();
+        }
+
+        formToggleText.innerHTML = isLoginView ? `Don't have an account? <a href="#" id="toggle-link" class="font-semibold text-indigo-500 hover:underline">Sign Up</a>` : `Already have an account? <a href="#" id="toggle-link" class="font-semibold text-indigo-500 hover:underline">Sign In</a>`;
+        document.getElementById('toggle-link').onclick = (e) => {
+            e.preventDefault();
+            isLoginView = !isLoginView;
+            updateFormView();
+        };
+    }
 
     studentTab.onclick = () => {
+        currentRole = 'student';
         studentTab.classList.add('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600');
         studentTab.classList.remove('text-gray-500', 'dark:text-gray-400');
         adminTab.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600');
         adminTab.classList.add('text-gray-500', 'dark:text-gray-400');
-        studentForm.classList.remove('hidden');
-        adminForm.classList.add('hidden');
+        updateFormView();
     };
 
     adminTab.onclick = () => {
+        if (!isLoginView) return;
+        currentRole = 'admin';
         adminTab.classList.add('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600');
         adminTab.classList.remove('text-gray-500', 'dark:text-gray-400');
         studentTab.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600');
         studentTab.classList.add('text-gray-500', 'dark:text-gray-400');
-        adminForm.classList.remove('hidden');
-        studentForm.classList.add('hidden');
+        updateFormView();
+    };
+    
+    authForm.onsubmit = (e) => {
+        e.preventDefault();
+        if (isLoginView) {
+            loginHandler(currentRole);
+        } else {
+            signUpHandler(currentRole);
+        }
     };
 
-    studentForm.onsubmit = (e) => {
-        e.preventDefault();
-        loginHandler('student');
-    };
-    adminForm.onsubmit = (e) => {
-        e.preventDefault();
-        loginHandler('admin');
-    };
     document.getElementById('clear-data-btn').onclick = clearDataHandler;
-    document.querySelectorAll('input').forEach(input => {
-        input.onfocus = () => onInputFocus(input, true);
-        input.onblur = () => onInputFocus(input, false);
-    });
-    document.getElementById('emergency-btn').onclick = () => {
-        window.location.href = 'emergency.html';
-    };
-     document.getElementById('emergency-card').onclick = () => {
-        window.location.href = 'emergency.html';
-    };
+    document.getElementById('emergency-btn').onclick = () => { window.location.href = 'emergency.html'; };
+    document.getElementById('emergency-card').onclick = () => { window.location.href = 'emergency.html'; };
+
+    updateFormView();
+}
+
+// ADDED
+function createSignUpFormFields(role) {
+    return `
+        <div class="relative">
+             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+            <input type="text" id="${role}-id-input" class="w-full pl-10 p-3 bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Create a User ID (e.g., student-101)" required>
+            <p id="${role}-id-error" class="text-red-500 text-xs mt-1 pl-1 hidden h-4"></p>
+        </div>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+            <input type="password" id="${role}-password-input" class="w-full pl-10 p-3 bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Password (min. 6 characters)" required>
+            <p id="${role}-password-error" class="text-red-500 text-xs mt-1 pl-1 hidden h-4"></p>
+        </div>
+         <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+            <input type="password" id="${role}-confirm-password-input" class="w-full pl-10 p-3 bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Confirm Password" required>
+            <p id="${role}-confirm-password-error" class="text-red-500 text-xs mt-1 pl-1 hidden h-4"></p>
+        </div>
+        <button type="submit" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-green-600 transition-transform hover:scale-105">
+            Create Account
+        </button>
+    `;
 }
 
 function createFormFields(role) {
