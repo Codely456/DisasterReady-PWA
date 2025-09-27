@@ -168,3 +168,115 @@ body {
     color: #e5e7eb;
     border: 1px solid #4b5563;
 }
+/* In style.css */
+
+/* ... (your existing CSS rules) ... */
+
+
+/* ▼▼▼ ADD THE CODE BELOW ▼▼▼ */
+
+/* --- Chatbot Styles --- */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.chatbot-toggle {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease-in-out, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chatbot-toggle:hover {
+    transform: scale(1.1);
+    background-color: #2563eb;
+}
+
+.chatbot-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 320px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: bottom right;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.dark .chatbot-window {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.chatbot-window.hidden {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+}
+
+.chatbot-header {
+    background: #3b82f6;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #1d4ed8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header h3 {
+    font-weight: 600;
+}
+
+.dark .chatbot-header {
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+}
+
+.close-chatbot {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.chatbot-messages {
+    padding: 1rem;
+    height: 250px;
+    overflow-y: auto;
+    color: #1f2937;
+}
+
+.dark .chatbot-messages {
+    color: #e5e7eb;
+}
+
+.chatbot-message {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f3f4f6;
+    line-height: 1.5;
+}
+
+.dark .chatbot-message {
+    background: #334155;
+}
+/* ▲▲▲ END OF CODE TO ADD ▲▲▲ */
