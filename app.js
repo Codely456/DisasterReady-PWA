@@ -1,5 +1,5 @@
 import { auth } from './firebase.js';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
 import { chapters } from './data.js';
@@ -25,15 +25,14 @@ onAuthStateChanged(auth, (user) => {
         state.isAuthReady = true;
         state.userId = user.uid;
         localDataService.setUserId(user.uid);
-        // We don't know the role on page load, so default to student
-        // This could be improved by storing the role in localStorage as well
         state.userRole = localStorage.getItem('userRole') || 'student';
         renderApp();
     } else {
         state.isAuthReady = false;
         state.userId = null;
         localDataService.setUserId(null);
-        renderLoginPage(handleLogin, handleClearData, handleInputFocus);
+        // This call is now updated to pass the new handleSignUp function
+        renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
     }
 });
 
@@ -48,6 +47,60 @@ window.addEventListener('beforeinstallprompt', (e) => {
         installBtn.classList.remove('hidden');
     }
 });
+
+//New
+async function handleSignUp(role) {
+    const idInputId = `${role}-id-input`;
+    const passwordInputId = `${role}-password-input`;
+    const confirmPasswordInputId = `${role}-confirm-password-input`;
+
+    const userId = document.getElementById(idInputId).value.trim();
+    const password = document.getElementById(passwordInputId).value.trim();
+    const confirmPassword = document.getElementById(confirmPasswordInputId).value.trim();
+    let isValid = true;
+
+    // Clear previous errors
+    clearInputError(idInputId);
+    clearInputError(passwordInputId);
+    clearInputError(confirmPasswordInputId);
+
+    if (!userId) {
+        setInputError(idInputId, 'User ID is required.');
+        isValid = false;
+    }
+    if (password.length < 6) {
+        setInputError(passwordInputId, 'Password must be at least 6 characters.');
+        isValid = false;
+    }
+    if (password !== confirmPassword) {
+        setInputError(confirmPasswordInputId, 'Passwords do not match.');
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    const email = `${userId}@email.com`;
+    console.log("Attempting to sign up with email:", email);
+
+    try {
+        showLoading(true);
+        await createUserWithEmailAndPassword(auth, email, password);
+        showToast('Account created successfully! Please sign in.', 'bg-green-500');
+        
+        // After successful signup, refresh the login page to the sign-in view
+        renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
+
+    } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+            setInputError(idInputId, 'This User ID is already taken.');
+        } else {
+            setInputError(idInputId, 'An error occurred. Please try again.');
+        }
+        console.error("Sign up failed:", error);
+    } finally {
+        showLoading(false);
+    }
+}
 
 document.addEventListener('click', async (e) => {
     if (e.target && e.target.id === 'install-pwa-btn') {
