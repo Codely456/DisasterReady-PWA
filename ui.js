@@ -2,8 +2,6 @@ import { quizBank, chapters, masterAchievements } from './data.js';
 
 const appContainer = document.getElementById('app');
 
-// In ui.js
-
 // 1. REPLACE THE ENTIRE renderLoginPage FUNCTION
 export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, onInputFocus) {
     appContainer.innerHTML = `
@@ -115,7 +113,7 @@ export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, o
     updateFormView();
 }
 
-// ADDED
+// 2. ADD THIS NEW FUNCTION
 function createSignUpFormFields(role) {
     return `
         <div class="relative">
@@ -199,7 +197,7 @@ export function renderStudentUI(userId, userData, eventHandlers) {
                 <header class="flex justify-between items-start mb-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
                     <div>
                         <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 dark:text-blue-300">Welcome back,</h1>
-                        <p class="text-gray-500 dark:text-gray-400 mt-1 text-lg font-semibold">${displayName}</p>
+                        <p class="text-gray-500 dark:text-gray-500 mt-1 text-sm">${userId}</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <a href="emergency.html" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-4xl animate-pulse">🚨</a>
