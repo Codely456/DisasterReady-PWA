@@ -110,7 +110,9 @@ export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, o
     document.getElementById('clear-data-btn').onclick = clearDataHandler;
     document.getElementById('emergency-btn').onclick = () => { window.location.href = 'emergency.html'; };
     document.getElementById('emergency-card').onclick = () => { window.location.href = 'emergency.html'; };
-
+// ▼▼▼ ADD THESE TWO LINES ▼▼▼
+    initializeChatbot();
+    displayBotMessage('login');
     updateFormView();
 }
 
