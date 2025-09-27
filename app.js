@@ -1,74 +1,13 @@
-import { auth } from './firebase.js';
+import { auth, db } from './firebase.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
-import { chapters } from './data.js';
-// In app.js
-// Import the Firestore functions at the top of the file
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { db } from './firebase.js'; // Make sure db is imported
-import { localDB as defaultDB } from './data.js'; // Import the default data structure
-
-// REPLACE the existing handleSignUp function with this
-async function handleSignUp(role) {
-    const idInputId = `${role}-id-input`;
-    const passwordInputId = `${role}-password-input`;
-    const confirmPasswordInputId = `${role}-confirm-password-input`;
-
-    const userId = document.getElementById(idInputId).value.trim();
-    // ... (the rest of your validation code is perfect and stays the same) ...
-    if (!isValid) return;
-
-    const email = `${userId}@email.com`;
-    
-    try {
-        showLoading(true);
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const newUser = userCredential.user;
-
-        // --- THIS IS THE NEW PART ---
-        // Create a user profile document in Firestore
-        const userDocRef = doc(db, "users", newUser.uid);
-        const userProfileData = {
-            ...defaultDB, // Includes score: 0, achievements: [], etc.
-            displayId: userId // <-- We are saving the friendly username here!
-        };
-        await setDoc(userDocRef, userProfileData);
-        // --- END OF NEW PART ---
-
-        showToast('Account created successfully! Please sign in.', 'bg-green-500');
-        renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
-
-    } catch (error) {
-        // ... (your error handling is perfect and stays the same) ...
-    } finally {
-        showLoading(false);
-    }
-}
-
-
-// REPLACE the existing renderStudentDashboard function with this
-async function renderStudentDashboard() {
-    showLoading(true);
-    
-    localDataService.listenToUserData(state.appId, (docSnap) => {
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            // Pass the friendly 'displayId' to the UI instead of the long UID
-            const displayName = data.displayId || state.userId; // Fallback to UID if displayId doesn't exist
-            renderStudentUI(displayName, data, {
-                onLogout: handleLogout,
-                onStartLearning: () => renderChapterList(data, chapterEventHandlers),
-                onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
-            });
-        }
-        showLoading(false);
-    });
-}
+import { chapters, localDB as defaultDB } from './data.js';
 
 // --- App State ---
 let state = {
-    appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
+    appId: 'default-app-id',
     adminSchoolId: 'admin-school-123',
     userId: null,
     userRole: 'student',
@@ -82,7 +21,6 @@ let state = {
 
 // --- App Initialization ---
 onAuthStateChanged(auth, (user) => {
-    localDataService.initialize();
     if (user) {
         state.isAuthReady = true;
         state.userId = user.uid;
@@ -93,11 +31,11 @@ onAuthStateChanged(auth, (user) => {
         state.isAuthReady = false;
         state.userId = null;
         localDataService.setUserId(null);
-        // This call is now updated to pass the new handleSignUp function
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
     }
 });
 
+// --- PWA Installation Logic (No changes needed here) ---
 // --- PWA Installation Logic ---
 let deferredInstallPrompt = null;
 
@@ -110,7 +48,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-//New
+// ... (Your existing PWA installation code is fine) ...
+
+// --- Event Handlers & Logic ---
+
 async function handleSignUp(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -120,8 +61,7 @@ async function handleSignUp(role) {
     const password = document.getElementById(passwordInputId).value.trim();
     const confirmPassword = document.getElementById(confirmPasswordInputId).value.trim();
     let isValid = true;
-   
-    // Clear previous errors
+
     clearInputError(idInputId);
     clearInputError(passwordInputId);
     clearInputError(confirmPasswordInputId);
@@ -140,25 +80,24 @@ async function handleSignUp(role) {
     }
 
     if (!isValid) return;
-    
+
     const email = `${userId}@email.com`;
     
     try {
         showLoading(true);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const newUser = userCredential.user;
-        // Create a user profile document in Firestore
+
+        // Create a user profile document in Firestore to store the friendly username
         const userDocRef = doc(db, "users", newUser.uid);
         const userProfileData = {
-            ...defaultDB, // Includes score: 0, achievements: [], etc.
-            displayId: userId // <-- We are saving the friendly username here!
+            ...defaultDB,
+            displayId: userId // Save the friendly username
         };
         await setDoc(userDocRef, userProfileData);
-        // --- END OF NEW PART ---
+
         showToast('Account created successfully! Please sign in.', 'bg-green-500');
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
-    }
-    console.log("Attempting to sign up with email:", email);
 
     } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -172,28 +111,6 @@ async function handleSignUp(role) {
     }
 }
 
-document.addEventListener('click', async (e) => {
-    if (e.target && e.target.id === 'install-pwa-btn') {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        const { outcome } = await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        const installBtn = document.getElementById('install-pwa-btn');
-        if (installBtn) {
-            installBtn.classList.add('hidden');
-        }
-    }
-});
-
-window.addEventListener('appinstalled', () => {
-    deferredInstallPrompt = null;
-    const installBtn = document.getElementById('install-pwa-btn');
-    if (installBtn) {
-        installBtn.classList.add('hidden');
-    }
-});
-
-// --- Event Handlers & Logic ---
 async function handleLogin(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -202,7 +119,6 @@ async function handleLogin(role) {
     const password = document.getElementById(passwordInputId).value.trim();
     let isValid = true;
 
-    // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
 
@@ -217,10 +133,7 @@ async function handleLogin(role) {
 
     if (!isValid) return;
 
-    // Transform userId to email format
     const email = `${userId}@email.com`;
-
-    console.log("Attempting to log in with email:", email);
 
     try {
         showLoading(true);
@@ -230,7 +143,7 @@ async function handleLogin(role) {
         state.isAuthReady = true;
         state.userId = user.uid;
         state.userRole = role;
-        localStorage.setItem('userRole', role); // Store role
+        localStorage.setItem('userRole', role);
         localDataService.setUserId(user.uid);
 
         renderApp();
@@ -245,16 +158,16 @@ async function handleLogin(role) {
 
 function handleLogout() {
     signOut(auth).then(() => {
-        localStorage.removeItem('userRole'); // Clear role on logout
-        // The onAuthStateChanged listener will handle the rest.
+        localStorage.removeItem('userRole');
+        // onAuthStateChanged will handle re-rendering the login page
     });
 }
 
 function handleClearData() {
-    if (confirm('Are you sure you want to reset all saved progress for the current user? This cannot be undone.')) {
-        localDataService.clearData(); // This will now clear data for the current user
+    if (confirm('This will clear data in Firestore and cannot be undone. Are you sure?')) {
+        localDataService.clearData();
         showToast('Your saved data has been reset.', 'bg-blue-500');
-        renderApp(); // Re-render the dashboard
+        renderApp();
     }
 }
 
@@ -270,17 +183,15 @@ function renderApp() {
 }
 
 function handleInputFocus(inputElement, isFocused) {
-    // Placeholder for future animations
+    // For future animations
 }
 
 async function renderStudentDashboard() {
     showLoading(true);
-    
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            // Pass the friendly 'displayId' to the UI instead of the long UID
-            const displayName = data.displayId || state.userId; // Fallback to UID if displayId doesn't exist
+            const displayName = data.displayId || state.userId; // Use the friendly name
             renderStudentUI(displayName, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => renderChapterList(data, chapterEventHandlers),
@@ -297,9 +208,16 @@ const chapterEventHandlers = {
 };
 
 const chapterDetailEventHandlers = {
-    onBackToChapters: renderApp,
+    onBackToChapters: renderStudentDashboard, // Go back to the student dashboard
     onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score)),
 };
+
+async function renderAdminDashboard() {
+    showLoading(true);
+    state.admin.students = await localDataService.getAllStudents();
+    updateAdminView();
+    showLoading(false);
+}
 
 function updateAdminView() {
     const students = state.admin.students;
@@ -317,7 +235,6 @@ function updateAdminView() {
         : 'None';
 
     const stats = { totalScore, averageScore, topAchievement };
-
     renderAdminUI(students, state.admin.sort, state.admin.filter, stats, adminEventHandlers);
 }
 
@@ -336,23 +253,13 @@ const adminEventHandlers = {
         }
         updateAdminView();
     },
-    onSelectStudent: (studentId) => {
-        const studentData = state.admin.students.find(s => s.id === studentId);
-        if (studentData) {
-            renderStudentDetailModal(studentId, studentData);
+    onSelectStudent: async (studentId) => {
+        const studentDoc = await localDataService.getUserDoc(studentId); // Use a generic getter
+        if (studentDoc.exists()) {
+            renderStudentDetailModal(studentDoc.id, studentDoc.data());
         }
     }
 };
-
-// In app.js
-
-async function renderAdminDashboard() {
-    showLoading(true);
-    // Fetch all student data for the admin view
-    state.admin.students = await localDataService.getAllStudents(); // Add 'await' here!
-    updateAdminView();
-    showLoading(false);
-}
 
 function handleQuizCompletion(quizType, score) {
     if (score > 0) {
@@ -369,17 +276,18 @@ function handleQuizCompletion(quizType, score) {
 
 async function checkAndAwardAchievements() {
     const docSnap = await localDataService.getUserDoc(state.appId);
+    if (!docSnap.exists()) return;
+    
     const data = docSnap.data();
     const score = data.score || 0;
     const achievements = data.achievements || [];
-    const level = Math.floor(score / 100) + 1;
-
-    if (score >= 50 && !achievements.includes('Fire Safety Pro')) localDataService.awardUserAchievement(state.appId, 'Fire Safety Pro');
+    const completed = data.completedQuizzes || [];
+    
+     if (score >= 50 && !achievements.includes('Fire Safety Pro')) localDataService.awardUserAchievement(state.appId, 'Fire Safety Pro');
     if (score >= 100 && !achievements.includes('Earthquake Expert')) localDataService.awardUserAchievement(state.appId, 'Earthquake Expert');
     if (score >= 150 && !achievements.includes('All-Rounder')) localDataService.awardUserAchievement(state.appId, 'All-Rounder');
     if (score >= 300 && !achievements.includes('Safety Superstar')) localDataService.awardUserAchievement(state.appId, 'Safety Superstar');
 
-    const completed = data.completedQuizzes || [];
     if (completed.length > 0 && !achievements.includes('Quiz Novice')) localDataService.awardUserAchievement(state.appId, 'Quiz Novice');
     if (completed.includes('fire') && !achievements.includes('Fire Quiz Master')) localDataService.awardUserAchievement(state.appId, 'Fire Quiz Master');
     if (completed.includes('earthquake') && !achievements.includes('Earthquake Quiz Master')) localDataService.awardUserAchievement(state.appId, 'Earthquake Quiz Master');
@@ -397,7 +305,7 @@ async function checkAndAwardAchievements() {
     const allQuizTypes = chapters.filter(c => c.gameType !== 'none').map(c => c.gameType);
     if (allQuizTypes.every(q => completed.includes(q)) && !achievements.includes('Safety Savant')) localDataService.awardUserAchievement(state.appId, 'Safety Savant');
 }
-
+// --- Particle Animation and Theme Toggle Logic ---
 document.addEventListener('DOMContentLoaded', () => {
     const initParticles = (isDarkMode) => {
         const lightTheme = {
