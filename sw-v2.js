@@ -1,4 +1,4 @@
-const CACHE_NAME = 'disaster-ready-v5';
+const CACHE_NAME = 'disaster-ready-v6';
 const FIREBASE_CACHE_NAME = 'firebase-cache-v1';
 const OFFLINE_URL = '/offline.html';
 const EMERGENCY_URL = '/emergency.html';
@@ -34,8 +34,7 @@ const STATIC_ASSETS = [
   '/assets/videos/chapter4-tornado.mp4',
   '/assets/videos/chapter5-active-shooter.mp4',
   '/assets/videos/chapter6-wildfire.mp4',
-  '/assets/videos/chapter7-hurricane.mp4'
-  // ADD ALL YOUR NEW IMAGE PATHS HERE:
+  '/assets/videos/chapter7-hurricane.mp4',
   '/assets/images/Fire-D&D.jpg',
   '/assets/images/Fire-ext.webp',
   '/assets/images/Response-prot.jpg',
