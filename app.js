@@ -177,10 +177,10 @@ async function renderStudentDashboard() {
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
+            // This is where chapterEventHandlers should be passed
             renderStudentUI(state.userId, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => {
-                    // This is the fix for the button
                     renderChapterList(data, chapterEventHandlers);
                     displayBotMessage('chapterList');
                 },
@@ -191,10 +191,16 @@ async function renderStudentDashboard() {
         showLoading(false);
     });
 }
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
 
+
+// This is the SINGLE, correct declaration of this variable.
 const chapterEventHandlers = {
     onBackToDashboard: renderStudentDashboard,
-    onSelectChapter: (index) => renderChapterDetail(index, null, chapterDetailEventHandlers),
+    onSelectChapter: (index) => {
+        renderChapterDetail(index, null, chapterDetailEventHandlers);
+        displayBotMessage('chapterDetail');
+    },
 };
 
 const chapterEventHandlers = {
