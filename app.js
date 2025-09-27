@@ -3,6 +3,68 @@ import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndP
 import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
 import { chapters } from './data.js';
+// In app.js
+// Import the Firestore functions at the top of the file
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { db } from './firebase.js'; // Make sure db is imported
+import { localDB as defaultDB } from './data.js'; // Import the default data structure
+
+// REPLACE the existing handleSignUp function with this
+async function handleSignUp(role) {
+    const idInputId = `${role}-id-input`;
+    const passwordInputId = `${role}-password-input`;
+    const confirmPasswordInputId = `${role}-confirm-password-input`;
+
+    const userId = document.getElementById(idInputId).value.trim();
+    // ... (the rest of your validation code is perfect and stays the same) ...
+    if (!isValid) return;
+
+    const email = `${userId}@email.com`;
+    
+    try {
+        showLoading(true);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+
+        // --- THIS IS THE NEW PART ---
+        // Create a user profile document in Firestore
+        const userDocRef = doc(db, "users", newUser.uid);
+        const userProfileData = {
+            ...defaultDB, // Includes score: 0, achievements: [], etc.
+            displayId: userId // <-- We are saving the friendly username here!
+        };
+        await setDoc(userDocRef, userProfileData);
+        // --- END OF NEW PART ---
+
+        showToast('Account created successfully! Please sign in.', 'bg-green-500');
+        renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
+
+    } catch (error) {
+        // ... (your error handling is perfect and stays the same) ...
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+// REPLACE the existing renderStudentDashboard function with this
+async function renderStudentDashboard() {
+    showLoading(true);
+    
+    localDataService.listenToUserData(state.appId, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            // Pass the friendly 'displayId' to the UI instead of the long UID
+            const displayName = data.displayId || state.userId; // Fallback to UID if displayId doesn't exist
+            renderStudentUI(displayName, data, {
+                onLogout: handleLogout,
+                onStartLearning: () => renderChapterList(data, chapterEventHandlers),
+                onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
+            });
+        }
+        showLoading(false);
+    });
+}
 
 // --- App State ---
 let state = {
@@ -58,7 +120,7 @@ async function handleSignUp(role) {
     const password = document.getElementById(passwordInputId).value.trim();
     const confirmPassword = document.getElementById(confirmPasswordInputId).value.trim();
     let isValid = true;
-
+   
     // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
@@ -78,17 +140,25 @@ async function handleSignUp(role) {
     }
 
     if (!isValid) return;
-
+    
     const email = `${userId}@email.com`;
-    console.log("Attempting to sign up with email:", email);
-
+    
     try {
         showLoading(true);
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+        // Create a user profile document in Firestore
+        const userDocRef = doc(db, "users", newUser.uid);
+        const userProfileData = {
+            ...defaultDB, // Includes score: 0, achievements: [], etc.
+            displayId: userId // <-- We are saving the friendly username here!
+        };
+        await setDoc(userDocRef, userProfileData);
+        // --- END OF NEW PART ---
         showToast('Account created successfully! Please sign in.', 'bg-green-500');
-        
-        // After successful signup, refresh the login page to the sign-in view
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
+    }
+    console.log("Attempting to sign up with email:", email);
 
     } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -205,12 +275,13 @@ function handleInputFocus(inputElement, isFocused) {
 
 async function renderStudentDashboard() {
     showLoading(true);
-    await localDataService.ensureUserProfile(state.appId, state.adminSchoolId);
-
+    
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            renderStudentUI(state.userId, data, {
+            // Pass the friendly 'displayId' to the UI instead of the long UID
+            const displayName = data.displayId || state.userId; // Fallback to UID if displayId doesn't exist
+            renderStudentUI(displayName, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => renderChapterList(data, chapterEventHandlers),
                 onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score))
