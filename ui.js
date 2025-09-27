@@ -1,4 +1,5 @@
 import { quizBank, chapters, masterAchievements } from './data.js';
+import { initializeChatbot, displayBotMessage } from './chatbot.js';
 
 const appContainer = document.getElementById('app');
 
