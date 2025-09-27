@@ -4,6 +4,7 @@ import { localDataService } from './service.js';
 import { renderLoginPage, renderAppShell, renderStudentUI, renderAdminUI, renderChapterList, renderChapterDetail, showQuizDialog, renderStudentDetailModal, showLoading, showToast, setInputError, clearInputError } from './ui.js';
 import { chapters } from './data.js';
 import { initializeChatbot, displayBotMessage } from './chatbot.js';
+
 // --- App State ---
 let state = {
     appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
@@ -31,12 +32,10 @@ onAuthStateChanged(auth, (user) => {
         state.isAuthReady = false;
         state.userId = null;
         localDataService.setUserId(null);
-        // This call is now updated to pass the new handleSignUp function
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
     }
 });
 
-//3. ADD THIS ENTIRE NEW FUNCTION
 async function handleSignUp(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -47,7 +46,6 @@ async function handleSignUp(role) {
     const confirmPassword = document.getElementById(confirmPasswordInputId).value.trim();
     let isValid = true;
 
-    // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
     clearInputError(confirmPasswordInputId);
@@ -74,10 +72,7 @@ async function handleSignUp(role) {
         showLoading(true);
         await createUserWithEmailAndPassword(auth, email, password);
         showToast('Account created successfully! Please sign in.', 'bg-green-500');
-        
-        // After successful signup, refresh the login page to the sign-in view
         renderLoginPage(handleLogin, handleSignUp, handleClearData, handleInputFocus);
-
     } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
             setInputError(idInputId, 'This User ID is already taken.');
@@ -90,7 +85,6 @@ async function handleSignUp(role) {
     }
 }
 
-// --- Event Handlers & Logic ---
 async function handleLogin(role) {
     const idInputId = `${role}-id-input`;
     const passwordInputId = `${role}-password-input`;
@@ -99,7 +93,6 @@ async function handleLogin(role) {
     const password = document.getElementById(passwordInputId).value.trim();
     let isValid = true;
 
-    // Clear previous errors
     clearInputError(idInputId);
     clearInputError(passwordInputId);
 
@@ -114,9 +107,7 @@ async function handleLogin(role) {
 
     if (!isValid) return;
 
-    // Transform userId to email format
     const email = `${userId}@email.com`;
-
     console.log("Attempting to log in with email:", email);
 
     try {
@@ -127,11 +118,10 @@ async function handleLogin(role) {
         state.isAuthReady = true;
         state.userId = user.uid;
         state.userRole = role;
-        localStorage.setItem('userRole', role); // Store role
+        localStorage.setItem('userRole', role);
         localDataService.setUserId(user.uid);
 
         renderApp();
-
     } catch (error) {
         setInputError(idInputId, 'Invalid credentials. Please try again.');
         console.error("Login failed:", error);
@@ -142,23 +132,22 @@ async function handleLogin(role) {
 
 function handleLogout() {
     signOut(auth).then(() => {
-        localStorage.removeItem('userRole'); // Clear role on logout
-        // The onAuthStateChanged listener will handle the rest.
+        localStorage.removeItem('userRole');
     });
 }
 
 function handleClearData() {
     if (confirm('Are you sure you want to reset all saved progress for the current user? This cannot be undone.')) {
-        localDataService.clearData(); // This will now clear data for the current user
+        localDataService.clearData();
         showToast('Your saved data has been reset.', 'bg-blue-500');
-        renderApp(); // Re-render the dashboard
+        renderApp();
     }
 }
 
 function renderApp() {
     if (!state.isAuthReady) return;
     renderAppShell();
-        initializeChatbot();
+    initializeChatbot();
     if (state.userRole === 'admin') {
         renderAdminDashboard();
     } else {
@@ -177,7 +166,6 @@ async function renderStudentDashboard() {
     localDataService.listenToUserData(state.appId, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            // This is where chapterEventHandlers should be passed
             renderStudentUI(state.userId, data, {
                 onLogout: handleLogout,
                 onStartLearning: () => {
@@ -191,10 +179,7 @@ async function renderStudentDashboard() {
         showLoading(false);
     });
 }
-// ▲▲▲ END OF REPLACEMENT ▲▲▲
 
-
-// This is the SINGLE, correct declaration of this variable.
 const chapterEventHandlers = {
     onBackToDashboard: renderStudentDashboard,
     onSelectChapter: (index) => {
@@ -202,6 +187,19 @@ const chapterEventHandlers = {
         displayBotMessage('chapterDetail');
     },
 };
+
+// ▼▼▼ THIS IS THE NEWLY ADDED BLOCK THAT WAS MISSING ▼▼▼
+const chapterDetailEventHandlers = {
+    onBackToChapters: () => {
+        localDataService.getUserDoc(state.appId).then(docSnap => {
+            const data = docSnap.exists() ? docSnap.data() : { completedQuizzes: [] };
+            renderChapterList(data, chapterEventHandlers);
+            displayBotMessage('chapterList');
+        });
+    },
+    onTakeQuiz: (quizType) => showQuizDialog(quizType, (score) => handleQuizCompletion(quizType, score)),
+};
+// ▲▲▲ END OF NEWLY ADDED BLOCK ▲▲▲
 
 function updateAdminView() {
     const students = state.admin.students;
@@ -246,12 +244,10 @@ const adminEventHandlers = {
     }
 };
 
-// In app.js
 async function renderAdminDashboard() {
     showLoading(true);
     state.admin.students = await localDataService.getAllStudents();
     updateAdminView();
-    // ▼▼▼ ADD THIS LINE ▼▼▼
     displayBotMessage('adminDashboard');
     showLoading(false);
 }
@@ -271,6 +267,7 @@ function handleQuizCompletion(quizType, score) {
 
 async function checkAndAwardAchievements() {
     const docSnap = await localDataService.getUserDoc(state.appId);
+    if(!docSnap.exists()) return;
     const data = docSnap.data();
     const score = data.score || 0;
     const achievements = data.achievements || [];
@@ -300,57 +297,37 @@ async function checkAndAwardAchievements() {
     if (allQuizTypes.every(q => completed.includes(q)) && !achievements.includes('Safety Savant')) localDataService.awardUserAchievement(state.appId, 'Safety Savant');
 }
 
-// ▼▼▼ REPLACE THE ENTIRE 'DOMContentLoaded' LISTENER AT THE END OF THE FILE WITH THIS ▼▼▼
 document.addEventListener('DOMContentLoaded', () => {
-    const particlesContainer = document.getElementById('particles-js');
-    
-    // If the particles container doesn't exist on the page, don't do anything.
-    if (!particlesContainer) {
-        return;
-    }
-    
     const initParticles = (isDarkMode) => {
-        // This configuration sets up the particles for the Light Theme (white background, gray particles)
         const lightTheme = {
             "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#808080" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5, "random": false }, "size": { "value": 5, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#808080", "opacity": 0.4, "width": 2 }, "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "repulse" } } }
         };
-
-        // This configuration sets up the particles for the Dark Theme (blue background, yellow particles)
         const darkTheme = {
             "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#FFFF00" }, "shape": { "type": "circle" }, "opacity": { "value": 0.6, "random": false }, "size": { "value": 5, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#FFFF00", "opacity": 0.4, "width": 2 }, "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "repulse" } } }
         };
-        
-        // Destroy any old particle animation before creating a new one
+        const config = isDarkMode ? darkTheme : lightTheme;
         if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
             window.pJSDom[0].pJS.fn.vendors.destroypJS();
         }
-        
-        // Choose the correct theme and create the new particle animation
-        const config = isDarkMode ? darkTheme : lightTheme;
         particlesJS('particles-js', config);
     };
 
-    // 1. Check the theme when the page first loads
-    let isDark = document.documentElement.classList.contains('dark');
-    initParticles(isDark);
-    
-    // 2. Create an "observer" that watches for changes to the theme
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            // If the 'class' attribute on the <html> tag changes...
-            if (mutation.attributeName === 'class') {
-                const newIsDark = document.documentElement.classList.contains('dark');
-                if (newIsDark !== isDark) {
-                    isDark = newIsDark;
-                    // ...redraw the particles with the new theme.
-                    initParticles(isDark);
+    const particlesContainer = document.getElementById('particles-js');
+    if (particlesContainer) {
+        let isDark = document.documentElement.classList.contains('dark');
+        initParticles(isDark);
+        
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    const newIsDark = document.documentElement.classList.contains('dark');
+                    if (newIsDark !== isDark) {
+                        isDark = newIsDark;
+                        initParticles(isDark);
+                    }
                 }
-            }
+            });
         });
-    });
-    
-    // Tell the observer to start watching the <html> element
-    observer.observe(document.documentElement, { attributes: true });
+        observer.observe(document.documentElement, { attributes: true });
+    }
 });
-// ▲▲▲ END OF REPLACEMENT ▲▲▲
-
