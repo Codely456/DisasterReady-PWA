@@ -29,6 +29,8 @@ const STATIC_ASSETS = [
   '/theme.js',
   '/icons/icon-192x192.svg',
   '/icons/icon-512x512.svg',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
   '/favicon.ico',
   '/icons/shield-icon.svg',
   '/icons/school-building-icon.svg',
