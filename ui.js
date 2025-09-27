@@ -199,7 +199,7 @@ export function renderStudentUI(userId, userData, eventHandlers) {
                 <header class="flex justify-between items-start mb-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
                     <div>
                         <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 dark:text-blue-300">Welcome back,</h1>
-                        <p class="text-gray-500 dark:text-gray-500 mt-1 text-sm">${userId}</p>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1 text-lg font-semibold">${displayName}</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <a href="emergency.html" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-4xl animate-pulse">🚨</a>
