@@ -2,7 +2,7 @@
 
 // A dictionary of messages for each page
 const pageMessages = {
-    login: "Welcome to DisasterReady! Please sign in as a student or admin to continue. For immediate help, click the red 'EMERGENCY ACCESS' button.",
+    login: "Welcome to Edushield! Please sign in as a student or admin to continue. For immediate help, click the red 'EMERGENCY ACCESS' button.",
     studentDashboard: "This is your dashboard. Here you can see your score, level, and achievements. Click 'Learning Chapters' to start learning or select a quiz to test your knowledge!",
     adminDashboard: "Welcome, Admin! This is the admin dashboard. You can see an overview of all student performance and click on any student to see their detailed progress.",
     chapterList: "Here are all the learning modules. A '✅' means you've completed the quiz for that chapter. Click on any chapter to view the content.",
@@ -40,7 +40,7 @@ export function initializeChatbot() {
  */
 export function displayBotMessage(page) {
     const messagesContainer = document.getElementById('chatbot-messages');
-    const message = pageMessages[page] || "Welcome to DisasterReady! I'll be your guide.";
+    const message = pageMessages[page] || "Welcome to Edushield! I'll be your guide.";
     
     if (messagesContainer) {
         messagesContainer.innerHTML = `<div class="chatbot-message">${message}</div>`;
