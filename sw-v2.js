@@ -1,10 +1,11 @@
-const CACHE_NAME = 'disaster-ready-v13';
+const CACHE_NAME = 'disaster-ready-v16';
 const FIREBASE_CACHE_NAME = 'firebase-cache-v1';
 const OFFLINE_URL = '/offline.html';
 const EMERGENCY_URL = '/emergency.html';
 
 // Critical assets that MUST be cached immediately for emergency access
 const CRITICAL_ASSETS = [
+  '/index.html',
   '/main.html',
   '/emergency.html',  // CRITICAL: Emergency page must always be available
   '/offline.html',
@@ -13,12 +14,6 @@ const CRITICAL_ASSETS = [
 
 // Additional assets to cache when possible
 const STATIC_ASSETS = [
-  '/', // This caches the root URL, which is crucial
-  '/index.html',
-  '/main.html',
-  '/emergency.html',
-  '/offline.html',
-  '/manifest.json',
   '/app.js',
   '/firebase.js',
   '/service.js',
@@ -27,7 +22,9 @@ const STATIC_ASSETS = [
   '/style.css',
   '/theme.css',
   '/theme.js',
-  '/favicon.ico',
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg',
+  '/favicon.ico',  
   '/assets/videos/chapter1-fire.mp4',
   '/assets/videos/chapter2-earthquake.mp4',
   '/assets/videos/chapter3-flood.mp4',
@@ -53,12 +50,7 @@ const STATIC_ASSETS = [
   '/assets/images/tornado-shel.png',
   '/assets/images/wild-dd.jpg',
   '/assets/images/wild-prep.jpeg',
-  '/assets/images/wildfire.jpg',
-  '/assets/images/login-background-1.jpg',
-  '/assets/images/hero-background.jpg',
-  '/chatbot.js',
-  '/ui.js',
-  
+  '/assets/images/wildfire.jpg'
 ];
 
 const FIREBASE_ASSETS = [
@@ -67,9 +59,7 @@ const FIREBASE_ASSETS = [
     'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 ];
 
-/// REPIACE the entire 'install' event listener in sw-v2.js with this new code
-
-/ Install event - cache critical assets first, then others
+// Install event - cache critical assets first, then others
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
 
@@ -281,7 +271,7 @@ self.addEventListener('push', (event) => {
     const options = {
       body: data.body || 'Emergency alert from DisasterReady',
       icon: '/icons/icon-192x192.svg',
-      badge: '/icons/warning-icon.svg',
+      badge: '',
       vibrate: [200, 100, 200],
       tag: 'emergency-alert',
       requireInteraction: true,
