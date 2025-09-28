@@ -60,8 +60,6 @@ const STATIC_ASSETS = [
   '/assets/images/wildfire.jpg',
   '/assets/images/login-background-1.jpg',
   '/assets/images/hero-background.jpg',
-  '/icons/icon-192x192.svg',
-  '/icons/icon-512x512.svg',
   '/chatbot.js',
   '/ui.js',
   
