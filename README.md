@@ -1,10 +1,10 @@
-#🛡️DisasterReady PWA 
+# 🛡️DisasterReady PWA 
 DisasterReady is a comprehensive, offline-first Progressive Web App (PWA) designed to integrate structured disaster management education directly into the school curriculum. This project was developed for the Smart India Hackathon to address the critical gap in disaster preparedness in Indian schools.
 
-##🚀 Live Demo
+## 🚀 Live Demo
 [Your Vercel deployment link will go here]
 
-##✨ Key Features
+## ✨ Key Features
 This isn't just a website; it's a feature-rich, resilient application built for real-world emergency scenarios.
 
 **Offline-First Architecture:** The entire learning experience, including all videos and illustrative images, is precached. The app is 100% functional without an internet connection after the first install, which is critical for use during a disaster when connectivity is down.
