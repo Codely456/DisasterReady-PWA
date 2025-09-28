@@ -44,13 +44,5 @@
         }
       ]
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/icons/icon-512x512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "form_factor": "wide"
-    }
   ]
-}
+
