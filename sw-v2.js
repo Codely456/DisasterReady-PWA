@@ -28,8 +28,6 @@ const STATIC_ASSETS = [
   '/theme.css',
   '/theme.js',
   '/favicon.ico',
-  '/icons/school-building-icon.svg',
-  '/icons/warning-icon.svg',
   '/assets/videos/chapter1-fire.mp4',
   '/assets/videos/chapter2-earthquake.mp4',
   '/assets/videos/chapter3-flood.mp4',
