@@ -21,7 +21,7 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 
 **Quizzes:** A 10-question quiz at the end of each chapter to test knowledge.
 
-##Student & Admin Dashboards:
+## Student & Admin Dashboards:
 
 **Student View:** Tracks score, level, and achievements unlocked.
 
@@ -37,7 +37,7 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 
 **Multi-Language Support:** Integrated with the Google Translate widget for maximum accessibility.
 
-##💻 Technology Stack
+## 💻 Technology Stack
 **Frontend:** Vanilla JavaScript (ES6 Modules), HTML5, CSS3 with Tailwind CSS for styling.
 
 **Backend & Authentication:** Firebase (Authentication).
@@ -46,7 +46,7 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 
 **Deployment:** Vercel.
 
-##🚀 Getting Started
+## 🚀 Getting Started
 **Clone the repository:** git clone https://github.com/your-username/DisasterReady-PWA.git
 
 **Navigate to the project directory:** cd DisasterReady-PWA
@@ -55,10 +55,10 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 
 Open your browser to **http://localhost:8000**
 
-##📸 Screenshots
+## 📸 Screenshots
 (Here, you can add screenshots of your hero page, the login screen, the student dashboard, and a chapter view to visually showcase your project.)
 
-##🔮 Future Scope
+## 🔮 Future Scope
 **Real-Time Admin Alerts:** Implement a system for admins to send live push notifications to all student PWAs.
 
 **Interactive School Map:** Create a gamified drill where students interact with a map of a school to find evacuation routes and safety equipment.
