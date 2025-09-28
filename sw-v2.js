@@ -1,4 +1,4 @@
-const CACHE_NAME = 'disaster-ready-v12';
+const CACHE_NAME = 'disaster-ready-v13';
 const FIREBASE_CACHE_NAME = 'firebase-cache-v1';
 const OFFLINE_URL = '/offline.html';
 const EMERGENCY_URL = '/emergency.html';
