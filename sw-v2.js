@@ -1,4 +1,4 @@
-const CACHE_NAME = 'disaster-ready-v9';
+const CACHE_NAME = 'disaster-ready-v10';
 const FIREBASE_CACHE_NAME = 'firebase-cache-v1';
 const OFFLINE_URL = '/offline.html';
 const EMERGENCY_URL = '/emergency.html';
@@ -61,7 +61,7 @@ const STATIC_ASSETS = [
   '/assets/images/tornado-shel.png',
   '/assets/images/wild-dd.jpg',
   '/assets/images/wild-prep.jpeg',
-  '/assets/images/wildfire.jpg'
+  '/assets/images/wildfire.jpg',
   '/assets/images/login-background-1.jpg',
   '/assets/images/hero-background.jpg',
   '/icons/icon-192x192.svg',
