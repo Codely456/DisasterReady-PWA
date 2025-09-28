@@ -36,6 +36,17 @@
     
 
     <script type="module" src="app.js"></script>
+      <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw-v2.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, error => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+    </script>
     
     <div id="chatbot-container" class="chatbot-container">
         <div id="chatbot-window" class="chatbot-window hidden">
