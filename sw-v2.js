@@ -69,54 +69,53 @@ const FIREBASE_ASSETS = [
 
 /// REPIACE the entire 'install' event listener in sw-v2.js with this new code
 
+/ Install event - cache critical assets first, then others
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker: Caching CRITICAL assets.');
-        // Step 1: Cache critical assets that the app absolutely needs to start.
-        // addAll will fail if any of these are not found.
+        console.log('Service Worker: Caching CRITICAL assets first');
+        // Cache critical assets first - these MUST succeed
         return cache.addAll(CRITICAL_ASSETS);
       })
       .then(() => {
-        // Step 2: Cache the remaining static assets individually.
-        // This is more robust and will NOT fail the installation if one file is missing.
-        console.log('Service Worker: Caching additional static assets individually.');
         return caches.open(CACHE_NAME).then(cache => {
+            console.log('Service Worker: Caching additional static assets');
             return Promise.allSettled(
-                STATIC_ASSETS.map(assetUrl =>
-                  cache.add(assetUrl).catch(err =>
-                    console.warn(`Failed to cache non-critical asset ${assetUrl}:`, err)
+                STATIC_ASSETS.map(asset =>
+                  cache.add(asset).catch(err =>
+                    console.warn(`Failed to cache ${asset}:`, err)
                   )
                 )
             );
         });
       })
       .then(() => {
-        // Step 3: Cache Firebase assets in their own cache.
         return caches.open(FIREBASE_CACHE_NAME).then(cache => {
-            console.log('Service Worker: Caching Firebase assets.');
+            console.log('Service Worker: Caching Firebase assets');
             return Promise.allSettled(
-                FIREBASE_ASSETS.map(assetUrl =>
-                  cache.add(assetUrl).catch(err =>
-                    console.warn(`Failed to cache Firebase asset ${assetUrl}:`, err)
+                FIREBASE_ASSETS.map(asset =>
+                  cache.add(asset).catch(err =>
+                    console.warn(`Failed to cache ${asset}:`, err)
                   )
                 )
             );
         });
       })
       .then(() => {
-        console.log('Service Worker: Installation complete and successful.');
-        return self.skipWaiting(); // Activate the new service worker immediately
+        console.log('Service Worker: Installation complete');
+        return self.skipWaiting();
       })
       .catch((error) => {
-        // This will now only catch failures in the CRITICAL_ASSETS caching.
-        console.error('Service Worker: CRITICAL asset caching failed. Installation stopped.', error);
+        console.error('Service Worker: Critical cache failed', error);
+        // Even if caching fails, still activate for emergency fallback
+        return self.skipWaiting();
       })
   );
 });
+
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('Service Worker: Activating...');
