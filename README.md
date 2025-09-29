@@ -4,6 +4,11 @@ DisasterReady is a comprehensive, offline-first Progressive Web App (PWA) design
 ## 🚀 Live Demo
 [Your Vercel deployment link will go here]
 
+## Student/Admin Access UserID/Passwords:
+1. Student: Take the help of Signup
+2. Admin: UserID: Admin1
+          Password: password123
+
 ## ✨ Key Features
 This isn't just a website; it's a feature-rich, resilient application built for real-world emergency scenarios.
 
@@ -54,9 +59,6 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 **Serve the files using a simple local server**. For example, if you have Python installed: **python -m http.server**
 
 Open your browser to **http://localhost:8000**
-
-## 📸 Screenshots
-(Here, you can add screenshots of your hero page, the login screen, the student dashboard, and a chapter view to visually showcase your project.)
 
 ## 🔮 Future Scope
 **Real-Time Admin Alerts:** Implement a system for admins to send live push notifications to all student PWAs.
