@@ -2,7 +2,7 @@
 DisasterReady is a comprehensive, offline-first Progressive Web App (PWA) designed to integrate structured disaster management education directly into the school curriculum. This project was developed for the Smart India Hackathon to address the critical gap in disaster preparedness in Indian schools.
 
 ## 🚀 Live Demo
-[Your Vercel deployment link will go here]
+disaster-ready-pwa.vercel.app
 
 ## Student/Admin Access UserID/Passwords:
 1. Student: Take the help of Signup
