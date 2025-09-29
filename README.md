@@ -32,7 +32,7 @@ This isn't just a website; it's a feature-rich, resilient application built for 
 
 **Admin View:** Provides an overview of all student progress.
 
-##Advanced UI/UX:
+## Advanced UI/UX:
 
 **Animated Hero Page:** A stunning, animated entry point for a professional first impression.
 
