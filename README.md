@@ -9,9 +9,9 @@ DisasterReady is a comprehensive, offline-first Progressive Web App (PWA) design
 
 2. Admin:
 
-UserID: **Admin1** 
+      UserID: **Admin1** 
 
-Password: **password123**
+      Password: **password123**
 
 ## ✨ Key Features
 This isn't just a website; it's a feature-rich, resilient application built for real-world emergency scenarios.
