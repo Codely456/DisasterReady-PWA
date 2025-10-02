@@ -7,7 +7,7 @@ DisasterReady is a comprehensive, offline-first Progressive Web App (PWA) design
 ## Student/Admin Access UserID/Passwords:
 1. Student:
 
-**Take the help of Signup**
+      **Take the help of Signup**
 
 2. Admin:
 
