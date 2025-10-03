@@ -1,3 +1,5 @@
+// DisasterReady-PWA/ui.js
+
 import { quizBank, chapters, masterAchievements } from './data.js';
 import { initializeChatbot, displayBotMessage } from './chatbot.js';
 
@@ -8,13 +10,13 @@ export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, o
     appContainer.innerHTML = `
     <div class="min-h-screen bg-[url('./assets/images/login-background-1.jpg')] bg-cover bg-center p-4 flex items-center justify-center">
         <div class="max-w-6xl w-full grid md:grid-cols-2 gap-8">
-            <div id="emergency-card" class="emergency-card-pulse bg-red-50/95 dark:bg-red-900/80 backdrop-blur-sm border-2 border-red-200 dark:border-red-700 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden rounded-2xl p-8 flex flex-col justify-between cursor-pointer">
+            <div id="emergency-card" class="emergency-card-pulse bg-red-900/80 backdrop-blur-sm border-2 border-red-700 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden rounded-2xl p-8 flex flex-col justify-between cursor-pointer">
                 <div class="text-center">
                     <div class="mx-auto mb-4 text-5xl">🚨</div>
-                    <h2 class="text-2xl font-bold text-white dark:text-white">EMERGENCY ACCESS</h2>
-                    <p class="text-white dark:text-white font-medium">Instant access during emergencies - No login required</p>
+                    <h2 class="text-2xl font-bold text-white">EMERGENCY ACCESS</h2>
+                    <p class="text-white font-medium">Instant access during emergencies - No login required</p>
                 </div>
-                <div class="space-y-2 text-sm text-white dark:text-white my-6">
+                <div class="space-y-2 text-sm text-white my-6">
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Quick Emergency Protocols</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Evacuation Routes & Maps</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Emergency Contacts</div>
@@ -110,7 +112,7 @@ export function renderLoginPage(loginHandler, signUpHandler, clearDataHandler, o
     document.getElementById('clear-data-btn').onclick = clearDataHandler;
     document.getElementById('emergency-btn').onclick = () => { window.location.href = 'emergency.html'; };
     document.getElementById('emergency-card').onclick = () => { window.location.href = 'emergency.html'; };
-// ▼▼▼ ADD THESE TWO LINES ▼▼▼
+
     initializeChatbot();
     displayBotMessage('login');
     updateFormView();
