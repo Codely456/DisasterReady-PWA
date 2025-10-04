@@ -69,7 +69,7 @@ Open your browser to **http://localhost:8000**
 ## 🔮 Future Scope
 **Real-Time Admin Alerts:** Implement a system for admins to send live push notifications to all student PWAs.
 
-**Chatbot(Currently Working):** Working On chatbot on every chapters, When student enetrs to chapters the Guidebot Converts to Chatbot So student can learn and understand.
+**Chatbot(Currently Working):** Working On chatbot on every chapters, When student enters to chapters the Guidebot Converts to Chatbot So student can learn and understand.
 
 **Interactive School Map:** Create a gamified drill where students interact with a map of a school to find evacuation routes and safety equipment.(using AR tech and Voice assist)
 
