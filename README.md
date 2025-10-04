@@ -69,6 +69,6 @@ Open your browser to **http://localhost:8000**
 ## 🔮 Future Scope
 **Real-Time Admin Alerts:** Implement a system for admins to send live push notifications to all student PWAs.
 
-**Interactive School Map:** Create a gamified drill where students interact with a map of a school to find evacuation routes and safety equipment.
+**Interactive School Map:** Create a gamified drill where students interact with a map of a school to find evacuation routes and safety equipment.(using AR tech and Voice assist)
 
 **"School Preparedness Score":** Develop an algorithm for the admin dashboard that calculates a single, actionable safety score for the entire institution.
