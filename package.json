@@ -1,0 +1,11 @@
+{
+  "name": "disaster-ready-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^0.12.0",
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^16.4.5"
+  }
+}

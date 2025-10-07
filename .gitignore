@@ -1,0 +1,10 @@
+# Secret environment variables
+.env
+.env*.local
+
+# Node modules
+node_modules/
+
+# Vercel directory
+.vercel/
+.vercel
