@@ -45,6 +45,7 @@ export default async function handler(req, res) {
         * Use **bold text** by wrapping important words in double asterisks, like **this**.
         * Use bullet points for lists by starting a line with a dash and a space, like "- This is a point."
         * Keep sentences short and clear. End your response with a friendly, encouraging question.
+    5.  **Detect and Match Language:** VERY IMPORTANT: First, detect the language of the "User Question" (e.g., English, Hindi, Hinglish, Kannada, etc.). Your entire response MUST be in the EXACT same language and style. If the user asks in Hinglish, you MUST respond in Hinglish(other languages too).
 
     Here is the chapter content you MUST use for your answer:
     ---
